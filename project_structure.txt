@@ -1,0 +1,73 @@
+notas-system/
+│
+├── backend/
+│   └── src/
+│       └── com/
+│           └── notas/
+│               │
+│               ├── Application.java              → main(), levanta el servidor y registra rutas
+│               │
+│               ├── config/
+│               │   └── DatabaseConfig.java        → Conexión a PostgreSQL (como @Configuration)
+│               │
+│               ├── model/
+│               │   ├── Usuario.java               → Entidad (como @Entity)
+│               │   ├── Curso.java
+│               │   ├── Actividad.java
+│               │   ├── Nota.java
+│               │   └── CursoEstudiante.java
+│               │
+│               ├── repository/
+│               │   ├── UsuarioRepository.java     → SQL puro contra la BD (como @Repository)
+│               │   ├── CursoRepository.java
+│               │   ├── ActividadRepository.java
+│               │   └── NotaRepository.java
+│               │
+│               ├── service/
+│               │   ├── AuthService.java           → Lógica de login/logout (como @Service)
+│               │   ├── UsuarioService.java
+│               │   ├── CursoService.java
+│               │   ├── ActividadService.java
+│               │   └── NotaService.java
+│               │
+│               ├── controller/
+│               │   ├── AuthController.java        → Rutas /api/auth/* (como @RestController)
+│               │   ├── UsuarioController.java     → Rutas /api/usuarios/*
+│               │   ├── CursoController.java       → Rutas /api/cursos/*
+│               │   ├── ActividadController.java   → Rutas /api/actividades/*
+│               │   └── NotaController.java        → Rutas /api/notas/*
+│               │
+│               ├── middleware/
+│               │   └── AuthMiddleware.java        → Valida token (como un Filter/Interceptor)
+│               │
+│               └── util/
+│                   ├── JsonUtil.java              → Parseo JSON manual
+│                   ├── SessionManager.java        → HashMap<token, Usuario> en memoria
+│                   └── HttpHelper.java            → Leer body, enviar respuesta, extraer params
+│
+├── frontend/
+│   ├── index.html                                → Login
+│   ├── pages/
+│   │   ├── dashboard.html
+│   │   ├── admin/
+│   │   │   └── usuarios.html
+│   │   ├── profesor/
+│   │   │   ├── cursos.html
+│   │   │   ├── actividades.html
+│   │   │   └── notas.html
+│   │   └── estudiante/
+│   │       └── mis-notas.html
+│   ├── css/
+│   │   ├── global.css
+│   │   └── components.css
+│   └── js/
+│       ├── api.js                                → Fetch centralizado + token automático
+│       ├── auth.js                               → Login, logout, guard de sesión
+│       ├── usuarios.js
+│       ├── cursos.js
+│       ├── actividades.js
+│       └── notas.js
+│
+└── database/
+    ├── schema.sql
+    └── seed.sql
