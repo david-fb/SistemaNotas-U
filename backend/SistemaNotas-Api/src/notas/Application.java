@@ -3,6 +3,7 @@ package notas;
 import com.sun.net.httpserver.HttpServer;
 
 import controller.AuthController;
+import controller.UsuarioController;
 import middleware.AuthMiddleware;
 
 import java.io.IOException;
@@ -24,11 +25,13 @@ public class Application {
         // Rutas protegidas (requieren token valido)
         // Cada ruta pasa por el AuthMiddleware antes de llegar al controller
         // ============================================================
-
-        // server.createContext("/api/usuarios", new AuthMiddleware(new UsuarioController()));
-        // server.createContext("/api/cursos", new AuthMiddleware(new CursoController()));
-        // server.createContext("/api/actividades", new AuthMiddleware(new ActividadController()));
-        // server.createContext("/api/notas", new AuthMiddleware(new NotaController()));
+        // Descomenta cada ruta cuando termines su controller
+        server.createContext("/api/usuarios", new AuthMiddleware(new UsuarioController()));
+        // server.createContext("/api/semestres",  new AuthMiddleware(new SemestreController()));
+        // server.createContext("/api/cursos",     new AuthMiddleware(new CursoController()));
+        // server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaController()));
+        // server.createContext("/api/cortes",     new AuthMiddleware(new CorteController()));
+        // server.createContext("/api/notas",      new AuthMiddleware(new NotaController()));
 
         server.setExecutor(null);
         server.start();

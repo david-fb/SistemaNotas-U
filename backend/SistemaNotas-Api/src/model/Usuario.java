@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class Usuario {
 
@@ -11,6 +13,18 @@ public class Usuario {
     private boolean activo;
 
     public Usuario() {
+    }
+
+    // Referencia de patrón: todos los modelos deben tener toMap()
+    // para poder serializarse con JsonUtil.toJson(model.toMap())
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", id);
+        map.put("nombre", nombre);
+        map.put("correo", correo);
+        map.put("rol", rol);
+        map.put("activo", activo);
+        return map;
     }
 
     public Usuario(int id, String nombre, String correo, String password, String rol, boolean activo) {

@@ -1,6 +1,7 @@
 package util;
 
 import com.sun.net.httpserver.HttpExchange;
+import model.Usuario;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,6 +71,11 @@ public class HttpHelper {
             return auth.substring(7);
         }
         return null;
+    }
+
+    // Retorna el Usuario autenticado — disponible tras pasar por AuthMiddleware
+    public static Usuario getUsuario(HttpExchange exchange) {
+        return (Usuario) exchange.getAttribute("usuario");
     }
 
     // Extrae el metodo HTTP (GET, POST, PUT, DELETE)
