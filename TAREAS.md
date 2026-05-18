@@ -1,6 +1,6 @@
 # Tareas del Equipo — Sistema de Notas
 
-> Para el patrón de código, ejemplos y explicación de HTTP ver **DOCUMENTACION.md**
+> Para el patrón de código, ejemplos de SQL y explicación de HTTP ver **DOCUMENTACION.md**
 
 ---
 
@@ -17,11 +17,18 @@ Todo lo siguiente ya está hecho y funciona:
 
 ---
 
-## Edwin — Semestres + Vista del Estudiante (EP-06, EP-08)
+## Edwin — Semestres (EP-08)
 
-> Semestres no depende de nadie 
+> Módulo completamente independiente. Puedes empezar el día 1 sin esperar a nadie.
 
-### Parte 1 — Semestres (empezar aquí)
+**Orden de implementación:**
+
+1. Crear `SemestreRepository.java` con `findAll()`
+2. Crear `SemestreController.java` con solo `GET /api/semestres`
+3. Descomentar la ruta en `Application.java` y probar en Postman que devuelve la lista
+4. Agregar `save(Semestre s)` al repository
+5. Agregar `POST /api/semestres` al controller
+6. Probar en Postman que se crea un semestre nuevo
 
 **Archivos a crear:**
 - `SemestreRepository.java` — métodos: `findAll()`, `save(Semestre s)`
@@ -39,38 +46,23 @@ server.createContext("/api/semestres", new AuthMiddleware(new SemestreController
 
 ---
 
-### Parte 2 — Vista del Estudiante (hacer después de que Alejandro termine NotaRepository)
-
-**Archivos a crear:**
-- `MisNotasController.java` — endpoints:
-  - `GET /api/mis-notas` → notas del estudiante autenticado agrupadas por curso
-  - `GET /api/mis-notas/promedio` → promedio general de todas sus materias
-
-**Cómo obtener el ID del estudiante autenticado:**
-```java
-Usuario estudiante = HttpHelper.getUsuario(exchange);
-int estudianteId = estudiante.getId();
-```
-
-**Fórmula de nota definitiva por curso:**
-```java
-double definitiva = 0;
-for (Nota nota : notasDelCurso) {
-    Corte corte = corteRepository.findById(nota.getCorteId());
-    definitiva += nota.getValor() * corte.getPorcentaje() / 100;
-}
-// definitiva >= 3.0 → "Aprobado"
-// definitiva <  3.0 → "Reprobado"
-```
-
-**Al terminar**, descomentar en `Application.java`:
-```java
-server.createContext("/api/mis-notas", new AuthMiddleware(new MisNotasController()));
-```
-
----
-
 ## Jimmi — Cursos + Matrículas (EP-03)
+
+> Módulo independiente. Puedes empezar el día 1 — el seed ya tiene semestres y cursos de prueba.
+
+**Orden de implementación:**
+
+1. Crear `CursoRepository.java` con `findAll()` y `findById()`
+2. Crear `CursoController.java` con solo `GET /api/cursos`
+3. Descomentar la ruta en `Application.java` y probar en Postman que devuelve la lista
+4. Agregar `findByCodigo()` y `save()` al repository
+5. Crear `CursoService.java` con las validaciones
+6. Agregar `POST /api/cursos` al controller y probar en Postman
+7. Agregar `findByProfesor()` al repository
+8. Agregar `GET /api/mis-cursos` al controller y probar con token de profesor
+9. Crear `MatriculaRepository.java` con `findByCurso()` y `save()`
+10. Crear `MatriculaController.java` con `GET` y `POST /api/matriculas` y probar
+11. Agregar `delete()` al repository y `DELETE /api/matriculas` al controller
 
 ### Parte 1 — Cursos
 
@@ -88,7 +80,7 @@ server.createContext("/api/mis-notas", new AuthMiddleware(new MisNotasController
     { "nombre": "Ingeniería de Software", "codigo": "IS-501", "profesorId": 2, "semestreId": 1 }
     ```
 
-> **`GET /api/mis-cursos`** usa el token para saber quién pregunta:
+> **`GET /api/mis-cursos`** usa el token para filtrar:
 > ```java
 > Usuario profesor = HttpHelper.getUsuario(exchange);
 > List<Curso> cursos = cursoService.getByProfesor(profesor.getId());
@@ -96,7 +88,8 @@ server.createContext("/api/mis-notas", new AuthMiddleware(new MisNotasController
 
 **Al terminar**, descomentar en `Application.java`:
 ```java
-server.createContext("/api/cursos", new AuthMiddleware(new CursoController()));
+server.createContext("/api/cursos",    new AuthMiddleware(new CursoController()));
+server.createContext("/api/mis-cursos", new AuthMiddleware(new CursoController()));
 ```
 
 ---
@@ -120,7 +113,27 @@ server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaControll
 
 ---
 
-## Alejandro — Cortes + Notas (EP-04, EP-05)
+## Alejandro — Cortes + Notas + Vista del Estudiante (EP-04, EP-05, EP-06)
+
+> Módulo independiente. Puedes empezar el día 1 — el seed ya tiene cursos, cortes y notas de prueba.
+
+**Orden de implementación:**
+
+1. Crear `CorteRepository.java` con `findByCurso()` y `findById()`
+2. Crear `CorteController.java` con solo `GET /api/cortes?cursoId=1`
+3. Descomentar la ruta en `Application.java` y probar en Postman
+4. Agregar `sumaPorcentajes()` y `save()` al repository
+5. Crear `CorteService.java` con la validación de porcentajes
+6. Agregar `POST /api/cortes` al controller y probar en Postman
+7. Agregar `delete()` al repository y `DELETE /api/cortes/{id}` al controller
+8. Crear `NotaRepository.java` con `findByCurso()`, `findByEstudiante()` y `findById()`
+9. Crear `NotaController.java` con solo `GET /api/notas?cursoId=1` y probar
+10. Crear `NotaService.java` con las validaciones
+11. Agregar `save()` al repository y `POST /api/notas` al controller y probar
+12. Agregar `update()` al repository y `PUT /api/notas/{id}` al controller
+13. Agregar `delete()` al repository y `DELETE /api/notas/{id}` al controller
+14. Crear `MisNotasController.java` con `GET /api/mis-notas` usando los repositories ya creados
+15. Agregar `GET /api/mis-notas/promedio` y probar con token de estudiante
 
 ### Parte 1 — Cortes
 
@@ -131,17 +144,15 @@ server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaControll
   - la suma total de cortes del curso no supere 100%
 - `CorteController.java` — endpoints:
   - `GET /api/cortes?cursoId=1` → lista cortes de un curso, **ordenados por id ASC**
-
-> **Nombre de los cortes:** `Corte` no tiene campo `nombre`. El frontend genera
-> "Corte 1", "Corte 2"... usando el índice del array. Por eso es obligatorio
-> devolver los cortes **ordenados por id** para que el orden sea siempre consistente.
->
-> En el SQL usar: `ORDER BY id ASC`
   - `POST /api/cortes` → crea corte (solo profesor o admin)
     ```json
     { "cursoId": 1, "porcentaje": 30 }
     ```
   - `DELETE /api/cortes/{id}` → elimina corte (solo profesor o admin)
+
+> **Nombre de los cortes:** el modelo no tiene campo `nombre`. El frontend genera
+> "Corte 1", "Corte 2"... usando el índice del array. Por eso es **obligatorio**
+> devolver los cortes ordenados por id: `ORDER BY id ASC`
 
 **Al terminar**, descomentar en `Application.java`:
 ```java
@@ -157,7 +168,6 @@ server.createContext("/api/cortes", new AuthMiddleware(new CorteController()));
 - `NotaService.java` — validar:
   - valor entre 0.0 y 5.0
   - el estudiante debe estar matriculado en el curso del corte
-  - calcular nota definitiva: `SUM(nota.valor * corte.porcentaje / 100)`
 - `NotaController.java` — endpoints:
   - `GET /api/notas?cursoId=1` → notas de todos los estudiantes del curso (vista profesor)
   - `POST /api/notas` → registra nota (solo profesor)
@@ -177,10 +187,43 @@ server.createContext("/api/notas", new AuthMiddleware(new NotaController()));
 
 ---
 
-## Resumen de archivos por persona
+### Parte 3 — Vista del Estudiante
+
+> Usa los mismos `CorteRepository` y `NotaRepository` que ya creaste arriba.
+
+**Archivos a crear:**
+- `MisNotasController.java` — endpoints:
+  - `GET /api/mis-notas` → notas del estudiante autenticado agrupadas por curso
+  - `GET /api/mis-notas/promedio` → promedio general de todas sus materias
+
+**Cómo obtener el estudiante autenticado:**
+```java
+Usuario estudiante = HttpHelper.getUsuario(exchange);
+int estudianteId = estudiante.getId();
+```
+
+**Fórmula de nota definitiva por curso:**
+```java
+double definitiva = 0;
+for (Nota nota : notasDelCurso) {
+    Corte corte = corteRepository.findById(nota.getCorteId());
+    definitiva += nota.getValor() * corte.getPorcentaje() / 100;
+}
+// definitiva >= 3.0 → "Aprobado"
+// definitiva <  3.0 → "Reprobado"
+```
+
+**Al terminar**, descomentar en `Application.java`:
+```java
+server.createContext("/api/mis-notas", new AuthMiddleware(new MisNotasController()));
+```
+
+---
+
+## Resumen
 
 | Persona | Archivos a crear | Depende de |
 |---------|-----------------|------------|
-| Edwin | `SemestreRepository`, `SemestreController`, `MisNotasController` | Parte 2 depende de Alejandro |
-| Jimmi | `CursoRepository`, `CursoService`, `CursoController`, `MatriculaRepository`, `MatriculaController` | Edwin (semestres) |
-| Alejandro | `CorteRepository`, `CorteService`, `CorteController`, `NotaRepository`, `NotaService`, `NotaController` | Jimmi (cursos) |
+| Edwin | `SemestreRepository`, `SemestreController` | Nadie ✅ |
+| Jimmi | `CursoRepository`, `CursoService`, `CursoController`, `MatriculaRepository`, `MatriculaController` | Nadie ✅ |
+| Alejandro | `CorteRepository`, `CorteService`, `CorteController`, `NotaRepository`, `NotaService`, `NotaController`, `MisNotasController` | Nadie ✅ |
