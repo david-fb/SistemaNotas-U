@@ -1,0 +1,339 @@
+{
+  "info": {
+    "name": "Sistema de Notas API",
+    "description": "Colección de requests para el Sistema de Gestión de Notas Estudiantiles",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "    console.log('Token guardado:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@notas.com\",\n  \"password\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Inicia sesión y guarda el token automáticamente en la variable {{token}}"
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('token', '');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Cierra sesión y limpia el token de la colección"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios"]
+            },
+            "description": "Lista todos los usuarios. Solo admin."
+          }
+        },
+        {
+          "name": "Obtener usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios", "1"]
+            },
+            "description": "Obtiene un usuario por su ID. Cambia el 1 por el ID que necesites."
+          }
+        },
+        {
+          "name": "Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Pedro Prueba\",\n  \"correo\": \"pedro@notas.com\",\n  \"password\": \"1234\",\n  \"rol\": \"estudiante\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios"]
+            },
+            "description": "Crea un nuevo usuario. Roles válidos: admin, profesor, estudiante."
+          }
+        },
+        {
+          "name": "Editar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Pedro Editado\",\n  \"correo\": \"pedro@notas.com\",\n  \"rol\": \"profesor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios", "9"]
+            },
+            "description": "Edita nombre, correo y rol de un usuario. Cambia el ID en la URL."
+          }
+        },
+        {
+          "name": "Desactivar usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/9",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios", "9"]
+            },
+            "description": "Desactiva un usuario (no lo elimina). Cambia el ID en la URL."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Semestres",
+      "item": [
+        {
+          "name": "Listar semestres",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/semestres",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "semestres"]
+            }
+          }
+        },
+        {
+          "name": "Crear semestre",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"2025-2\",\n  \"fechaInicio\": \"2025-07-14\",\n  \"fechaFin\": \"2025-12-05\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/semestres",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "semestres"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cursos",
+      "item": [
+        {
+          "name": "Listar cursos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cursos"]
+            }
+          }
+        },
+        {
+          "name": "Crear curso",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ingeniería de Software\",\n  \"codigo\": \"IS-501\",\n  \"profesorId\": 2,\n  \"semestreId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cursos"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matrículas",
+      "item": [
+        {
+          "name": "Matricular estudiante",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cursoId\": 1,\n  \"estudianteId\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/matriculas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "matriculas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cortes",
+      "item": [
+        {
+          "name": "Listar cortes de un curso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/cortes?cursoId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cortes"],
+              "query": [{ "key": "cursoId", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Crear corte",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cursoId\": 1,\n  \"porcentaje\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cortes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cortes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notas",
+      "item": [
+        {
+          "name": "Registrar nota",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudianteId\": 4,\n  \"corteId\": 1,\n  \"valor\": 4.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notas"]
+            }
+          }
+        },
+        {
+          "name": "Mis notas (estudiante)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/mis-notas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mis-notas"]
+            },
+            "description": "Retorna las notas del estudiante autenticado"
+          }
+        }
+      ]
+    }
+  ]
+}
