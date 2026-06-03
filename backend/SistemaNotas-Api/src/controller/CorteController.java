@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import model.Usuario;
 import service.CorteService;
 import util.JsonUtil;
 
@@ -43,7 +44,11 @@ public class CorteController implements HttpHandler{
                 handleGetById(exchange, Integer.parseInt(idStr));
             } else if (path.matches("/api/cortes/curso/\\d+") && method.equals("GET")){
                 handleGetByCurso(exchange, Integer.parseInt(idCurso));
-            } else {
+            }else if (path.equals("/api/cortes") && method.equals("POST")) {
+                handleCreate(exchange);
+            } else if (path.matches("/api/cortes/\\d+") && method.equals("DELETE")) {
+                handleDelete(exchange, Integer.parseInt(idStr));
+            }else {
                 HttpHelper.sendError(exchange, 404, "Ruta no encontrada");
             }
         } catch (IllegalArgumentException e) {
@@ -68,7 +73,28 @@ public class CorteController implements HttpHandler{
                 .map(Corte::toMap)
                 .collect(Collectors.toList());
         HttpHelper.sendJsonArray(exchange, 200, JsonUtil.toJsonArray(lista));
+    }   
+    
+    private void handleCreate(HttpExchange exchange) throws IOException {
+        Usuario solicitante = HttpHelper.getUsuario(exchange);
+        if (!solicitante.getRol().equals("profesor") && !solicitante.getRol().equals("admin")) {
+            HttpHelper.sendError(exchange, 403, "Acceso denegado.");
+            return;
+        }
+        Map<String, Object> body = HttpHelper.readJsonBody(exchange);
+        int cursoId = ((Number) body.get("cursoId")).intValue();
+        double porcentaje = ((Number) body.get("porcentaje")).doubleValue();
+        Corte creado = corteService.create(cursoId, porcentaje);
+        HttpHelper.sendJson(exchange, 201, creado.toMap());
     }
     
-    
+    private void handleDelete(HttpExchange exchange, int id) throws IOException {
+        Usuario solicitante = HttpHelper.getUsuario(exchange);
+        if (!solicitante.getRol().equals("profesor") && !solicitante.getRol().equals("admin")) {
+            HttpHelper.sendError(exchange, 403, "Acceso denegado.");
+            return;
+        }
+        corteService.delete(id);
+        HttpHelper.sendJson(exchange, 200, Map.of("mensaje", "Corte eliminado"));
+    }
 }
