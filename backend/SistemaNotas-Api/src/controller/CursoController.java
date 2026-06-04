@@ -28,25 +28,25 @@ public class CursoController implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String method = HttpHelper.getMethod(exchange);
 
-       try {
+        try {
             model.Usuario solicitante = HttpHelper.getUsuario(exchange);
             System.out.println("Ruta recibida: " + path);
             System.out.println("Método recibido: " + method);
-            
+
             if (solicitante == null) {
                 HttpHelper.sendError(exchange, 401, "No autorizado. Inicia sesion primero.");
                 return;
             }
-            
+
             // 1. Condicional para listar cursos
             if (path.equals("/api/cursos") && method.equals("GET")) {
                 handleGetAll(exchange);
-            } 
-            // 2. ¡ESTA ES LA LÍNEA QUE FALTA AGREGAR! -> Conectar con handleCreate
+            } // 2. ¡ESTA ES LA LÍNEA QUE FALTA AGREGAR! -> Conectar con handleCreate
             else if (path.equals("/api/cursos") && method.equals("POST")) {
                 handleCreate(exchange);
-            } 
-            // 3. Si no es ninguna, da 404
+            }else if (path.equals("/api/mis-cursos") && method.equals("GET")) {
+                handleGetByProfesor(exchange, solicitante);
+            }  // 3. Si no es ninguna, da 404
             else {
                 HttpHelper.sendError(exchange, 404, "Ruta no encontrada en cursos");
             }
@@ -72,56 +72,69 @@ public class CursoController implements HttpHandler {
     }
 
     private void handleCreate(HttpExchange exchange) throws IOException {
-    try {
-        // 1. Leer el cuerpo JSON de forma segura
-        Map<String, Object> body = HttpHelper.readJsonBody(exchange);
-        
-        if (body == null || body.isEmpty()) {
-            HttpHelper.sendError(exchange, 400, "El cuerpo JSON está vacío");
-            return;
+        try {
+            // 1. Leer el cuerpo JSON de forma segura
+            Map<String, Object> body = HttpHelper.readJsonBody(exchange);
+
+            if (body == null || body.isEmpty()) {
+                HttpHelper.sendError(exchange, 400, "El cuerpo JSON está vacío");
+                return;
+            }
+
+            // 2. Extraer parámetros con validación de tipos
+            String nombre = (String) body.get("nombre");
+            String codigo = (String) body.get("codigo");
+
+            Integer profesorId = null;
+            Integer semestreId = null;
+
+            if (body.get("profesorId") != null) {
+                Object profObj = body.get("profesorId");
+                profesorId = (profObj instanceof Number) ? ((Number) profObj).intValue() : Integer.parseInt(profObj.toString().trim());
+            }
+
+            if (body.get("semestreId") != null) {
+                Object semObj = body.get("semestreId");
+                semestreId = (semObj instanceof Number) ? ((Number) semObj).intValue() : Integer.parseInt(semObj.toString().trim());
+            }
+
+            System.out.println("Enviando al Service -> Nombre: " + nombre + ", Código: " + codigo);
+
+            // 3. Crear el curso (Llamada al Service)
+            Curso creado = cursoService.create(nombre, codigo, profesorId, semestreId);
+
+            // 4. Enviar la respuesta exitosa y cerrar explícitamente el canal
+            if (creado != null) {
+                HttpHelper.sendJson(exchange, 201, creado.toMap());
+            } else {
+                HttpHelper.sendError(exchange, 500, "No se pudo recuperar el curso creado");
+            }
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Validación rechazada: " + e.getMessage());
+            HttpHelper.sendError(exchange, 400, e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Excepción crítica en handleCreate:");
+            e.printStackTrace();
+            HttpHelper.sendError(exchange, 500, "Error interno del servidor en cursos");
+        } finally {
+            // Clausura obligatoria del stream de intercambio de red para liberar el socket
+            exchange.close();
         }
-
-        // 2. Extraer parámetros con validación de tipos
-        String nombre = (String) body.get("nombre");
-        String codigo = (String) body.get("codigo");
-        
-        Integer profesorId = null;
-        Integer semestreId = null;
-
-        if (body.get("profesorId") != null) {
-            Object profObj = body.get("profesorId");
-            profesorId = (profObj instanceof Number) ? ((Number) profObj).intValue() : Integer.parseInt(profObj.toString().trim());
-        }
-
-        if (body.get("semestreId") != null) {
-            Object semObj = body.get("semestreId");
-            semestreId = (semObj instanceof Number) ? ((Number) semObj).intValue() : Integer.parseInt(semObj.toString().trim());
-        }
-
-        System.out.println("Enviando al Service -> Nombre: " + nombre + ", Código: " + codigo);
-
-        // 3. Crear el curso (Llamada al Service)
-        Curso creado = cursoService.create(nombre, codigo, profesorId, semestreId);
-        
-        // 4. Enviar la respuesta exitosa y cerrar explícitamente el canal
-        if (creado != null) {
-            HttpHelper.sendJson(exchange, 201, creado.toMap());
-        } else {
-            HttpHelper.sendError(exchange, 500, "No se pudo recuperar el curso creado");
-        }
-
-    } catch (IllegalArgumentException e) {
-        System.out.println("Validación rechazada: " + e.getMessage());
-        HttpHelper.sendError(exchange, 400, e.getMessage());
-    } catch (Exception e) {
-        System.out.println("Excepción crítica en handleCreate:");
-        e.printStackTrace();
-        HttpHelper.sendError(exchange, 500, "Error interno del servidor en cursos");
-    } finally {
-        // Clausura obligatoria del stream de intercambio de red para liberar el socket
-        exchange.close();
     }
-}
 
+        // GET /api/mis-cursos
+    private void handleGetByProfesor(HttpExchange exchange, model.Usuario profesor) throws IOException {
+        // Ejecuta tu línea propuesta usando el ID del profesor logueado
+        List<Curso> cursos = cursoService.getByProfesor(profesor.getId());
+        
+        // Mapea la lista de objetos Curso a una estructura de Maps compatible con tu serializador
+        List<Map<String, Object>> lista = cursos.stream()
+                .map(Curso::toMap)
+                .collect(Collectors.toList());
+                
+        // Envía la respuesta exitosa con la colección ordenada
+        HttpHelper.sendJsonArray(exchange, 200, JsonUtil.toJsonArray(lista));
+    }
 
 }

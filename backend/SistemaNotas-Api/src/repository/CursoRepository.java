@@ -55,28 +55,54 @@ public class CursoRepository {
             throw new RuntimeException("Error al crear curso en repositorio", e);
         }
     }
+
     public Curso findByCodigo(String codigo) {
-    String sql = "SELECT id, nombre, codigo, profesor_id, semestre_id FROM public.curso WHERE codigo = ?";
-    
-    try (Connection conn = DatabaseConfig.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-         
-        ps.setString(1, codigo);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return new Curso(
-                    rs.getInt("id"),
-                    rs.getString("nombre"),
-                    rs.getString("codigo"),
-                    rs.getInt("profesor_id"),
-                    rs.getInt("semestre_id")
-                );
+        String sql = "SELECT id, nombre, codigo, profesor_id, semestre_id FROM public.curso WHERE codigo = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, codigo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Curso(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("codigo"),
+                            rs.getInt("profesor_id"),
+                            rs.getInt("semestre_id")
+                    );
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) { 
-        e.printStackTrace(); 
+        return null; // Si no lo encuentra, retorna null de forma segura
     }
-    return null; // Si no lo encuentra, retorna null de forma segura
-}
+    
+
+    public List<Curso> findByProfesor(int profesorId) {
+        List<Curso> cursos = new ArrayList<>();
+        String sql = "SELECT id, nombre, codigo, profesor_id, semestre_id FROM public.curso WHERE profesor_id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, profesorId); // 
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) { 
+                    cursos.add(new Curso(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("codigo"),
+                            rs.getInt("profesor_id"),
+                            rs.getInt("semestre_id")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cursos; // Retorna la lista (estará vacía si el profesor no tiene cursos)
+    }
 
 }

@@ -33,5 +33,10 @@ public class CursoService {
 
         return cursoRepository.save(new Curso(0, nombre, codigo, profesorId, semestreId));
     }
+    // Método para obtener los cursos asignados a un profesor específico
+    public List<Curso> getByProfesor(int profesorId) {
+        // Retorna la lista que genera el repositorio
+        return cursoRepository.findByProfesor(profesorId);
+    }
 
 }

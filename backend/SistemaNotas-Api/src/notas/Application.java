@@ -30,6 +30,7 @@ public class Application {
         server.createContext("/api/usuarios", new AuthMiddleware(new UsuarioController()));
         // server.createContext("/api/semestres",  new AuthMiddleware(new SemestreController()));
         server.createContext("/api/cursos",     new AuthMiddleware(new CursoController()));
+        server.createContext("/api/mis-cursos", new AuthMiddleware(new CursoController()));
         // server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaController()));
         // server.createContext("/api/cortes",     new AuthMiddleware(new CorteController()));
         // server.createContext("/api/notas",      new AuthMiddleware(new NotaController()));
