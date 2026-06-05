@@ -104,5 +104,29 @@ public class CursoRepository {
         }
         return cursos; // Retorna la lista (estará vacía si el profesor no tiene cursos)
     }
+        // Busca un curso individual por su ID de manera segura
+    public Curso findById(int id) {
+        String sql = "SELECT id, nombre, codigo, profesor_id, semestre_id FROM public.curso WHERE id = ?";
+        
+        try (Connection conn = DatabaseConfig.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Curso(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        rs.getString("codigo"),
+                        rs.getInt("profesor_id"),
+                        rs.getInt("semestre_id")
+                    );
+                }
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+        return null; // Retorna null si la materia no existe
+    }
 
 }

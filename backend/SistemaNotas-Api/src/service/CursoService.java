@@ -38,5 +38,13 @@ public class CursoService {
         // Retorna la lista que genera el repositorio
         return cursoRepository.findByProfesor(profesorId);
     }
+        // GET /api/cursos/{id}
+    public Curso getById(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("El ID del curso proporcionado no es válido");
+        }
+        return cursoRepository.findById(id);
+    }
+
 
 }

@@ -17,9 +17,9 @@ public class CursoController implements HttpHandler {
 
     private final CursoService cursoService = new CursoService();
 
-    @Override
+        @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // Manejo de CORS obligatorio para que conecte con tu Frontend
+        // Manejo de CORS obligatorio
         if (HttpHelper.getMethod(exchange).equals("OPTIONS")) {
             HttpHelper.handleCors(exchange);
             return;
@@ -27,29 +27,56 @@ public class CursoController implements HttpHandler {
 
         String path = exchange.getRequestURI().getPath();
         String method = HttpHelper.getMethod(exchange);
+        String idStr = HttpHelper.getPathParam(exchange, 3); // Asegúrate de que use el índice correcto (3) según tu enrutamiento
 
         try {
+            // Validación obligatoria de autenticación (Token válido)
             model.Usuario solicitante = HttpHelper.getUsuario(exchange);
-            System.out.println("Ruta recibida: " + path);
-            System.out.println("Método recibido: " + method);
-
+            System.out.println("Ruta recibida: " + path + " | Método: " + method + " | Rol: " + (solicitante != null ? solicitante.getRol() : "null"));
+            
             if (solicitante == null) {
                 HttpHelper.sendError(exchange, 401, "No autorizado. Inicia sesion primero.");
                 return;
             }
 
-            // 1. Condicional para listar cursos
+            // 1. GET /api/cursos -> Lista todos (REQUERIMIENTO: Solo admin)
             if (path.equals("/api/cursos") && method.equals("GET")) {
+                if (!solicitante.getRol().equals("admin")) {
+                    HttpHelper.sendError(exchange, 403, "Acceso denegado. Se requiere rol admin.");
+                    return;
+                }
                 handleGetAll(exchange);
-            } // 2. ¡ESTA ES LA LÍNEA QUE FALTA AGREGAR! -> Conectar con handleCreate
-            else if (path.equals("/api/cursos") && method.equals("POST")) {
-                handleCreate(exchange);
-            }else if (path.equals("/api/mis-cursos") && method.equals("GET")) {
+            } 
+            
+            // 2. GET /api/cursos/{id} -> Obtiene uno (REQUERIMIENTO: Todos los roles)
+            else if (path.matches("/api/cursos/\\d+") && method.equals("GET")) {
+                // No se pone ninguna restricción de rol aquí, ya que todos los roles tienen acceso
+                handleGetById(exchange, Integer.parseInt(idStr.trim()));
+            } 
+            
+            // 3. GET /api/mis-cursos -> Cursos del profesor (REQUERIMIENTO: Solo profesor)
+            else if (path.equals("/api/mis-cursos") && method.equals("GET")) {
+                if (!solicitante.getRol().equals("profesor")) {
+                    HttpHelper.sendError(exchange, 403, "Acceso denegado. Se requiere rol profesor.");
+                    return;
+                }
                 handleGetByProfesor(exchange, solicitante);
-            }  // 3. Si no es ninguna, da 404
+            } 
+            
+            // 4. POST /api/cursos -> Crea curso (REQUERIMIENTO: Solo admin)
+            else if (path.equals("/api/cursos") && method.equals("POST")) {
+                if (!solicitante.getRol().equals("admin")) {
+                    HttpHelper.sendError(exchange, 403, "Acceso denegado. Se requiere rol admin.");
+                    return;
+                }
+                handleCreate(exchange);
+            } 
+            
+            // Ruta no encontrada
             else {
                 HttpHelper.sendError(exchange, 404, "Ruta no encontrada en cursos");
             }
+
         } catch (IllegalArgumentException e) {
             HttpHelper.sendError(exchange, 400, e.getMessage());
         } catch (Exception e) {
@@ -57,6 +84,7 @@ public class CursoController implements HttpHandler {
             HttpHelper.sendError(exchange, 500, "Error interno del servidor en cursos");
         }
     }
+
 
     // GET /api/cursos
     // Response: [{id, nombre, descripcion, ...}, ...]
@@ -136,5 +164,19 @@ public class CursoController implements HttpHandler {
         // Envía la respuesta exitosa con la colección ordenada
         HttpHelper.sendJsonArray(exchange, 200, JsonUtil.toJsonArray(lista));
     }
+        // GET /api/cursos/{id} -> Obtiene uno (Permitido para todos los roles)
+    private void handleGetById(HttpExchange exchange, int id) throws IOException {
+        Curso curso = cursoService.getById(id);
+        
+        // Si el curso con ese ID no existe en PostgreSQL, respondemos 404
+        if (curso == null) {
+            HttpHelper.sendError(exchange, 404, "Curso no encontrado");
+            return;
+        }
+        
+        // Si existe, lo convertimos a su LinkedHashMap y lo enviamos como JSON (200 OK)
+        HttpHelper.sendJson(exchange, 200, curso.toMap());
+    }
+
 
 }
