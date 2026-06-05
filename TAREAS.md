@@ -113,7 +113,7 @@ server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaControll
 
 ---
 
-## Alejandro — Cortes + Notas + Vista del Estudiante (EP-04, EP-05, EP-06)
+## Alejandro — Cortes + Notas + Vista del Estudiante (EP-04, EP-05, EP-06) ✅ COMPLETADO
 
 > Módulo independiente. Puedes empezar el día 1 — el seed ya tiene cursos, cortes y notas de prueba.
 
