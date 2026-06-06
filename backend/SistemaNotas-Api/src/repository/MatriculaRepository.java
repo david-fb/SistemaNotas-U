@@ -62,23 +62,24 @@ public class MatriculaRepository {
             throw new RuntimeException("Error al crear matricula en repositorio", e);
         }
     }
-    public boolean deleteLogico(int id) {
-    // Cambia el estado a false para simular la eliminación (Borrado Lógico)
-    String sql = "UPDATE public.matricula SET estado = false WHERE id = ?";
-
-    try (Connection conn = DatabaseConfig.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-        ps.setInt(1, id);
-        int filasAfectadas = ps.executeUpdate();
+    public boolean delete(int cursoId, int estudianteId) {
         
-        return filasAfectadas > 0; // Retorna true si encontró la matrícula y la actualizó
+        String sql = "UPDATE public.matricula SET estado = false WHERE curso_id = ? AND estudiante_id = ?";
 
-    } catch (SQLException e) {
-        e.printStackTrace();
-        throw new RuntimeException("Error al dar de baja la matricula en el repositorio", e);
+        try (Connection conn = DatabaseConfig.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, cursoId);
+            ps.setInt(2, estudianteId);
+            int filasAfectadas = ps.executeUpdate();
+            
+            return filasAfectadas > 0; 
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al dar de baja la matricula en el repositorio", e);
+        }
     }
-}
 
     
 }
