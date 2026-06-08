@@ -8,6 +8,7 @@ import controller.MisNotasController;
 import controller.NotaController;
 import controller.UsuarioController;
 import controller.CursoController;
+import controller.MatriculaController;
 import middleware.AuthMiddleware;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class Application {
         // server.createContext("/api/semestres",  new AuthMiddleware(new SemestreController()));
         server.createContext("/api/cursos",     new AuthMiddleware(new CursoController()));
         server.createContext("/api/mis-cursos", new AuthMiddleware(new CursoController()));
-        // server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaController()));
+        server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaController()));
         server.createContext("/api/cortes",     new AuthMiddleware(new CorteController()));
         server.createContext("/api/notas",      new AuthMiddleware(new NotaController()));
         server.createContext("/api/mis-notas", new AuthMiddleware(new MisNotasController()));

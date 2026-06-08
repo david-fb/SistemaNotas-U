@@ -108,4 +108,21 @@ public class HttpHelper {
         }
         return null;
     }
+
+    public static java.util.Map<String, String> getQueryParams(com.sun.net.httpserver.HttpExchange exchange) {
+    java.util.Map<String, String> params = new java.util.HashMap<>();
+    String query = exchange.getRequestURI().getQuery();
+    if (query != null && !query.isEmpty()) {
+        for (String param : query.split("&")) {
+            String[] pairs = param.split("=");
+            if (pairs.length > 1) {
+                params.put(pairs[0], pairs[1]);
+            } else if (pairs.length == 1) {
+                params.put(pairs[0], "");
+            }
+        }
+    }
+    return params;
+}
+
 }
