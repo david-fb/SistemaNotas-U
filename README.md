@@ -10,8 +10,8 @@ Aplicación web para el registro, control y consulta de calificaciones académic
 |------|-----------|
 | Backend | Java 17 — `com.sun.net.httpserver` (sin frameworks) |
 | Base de datos | PostgreSQL 14 |
-| Frontend | HTML, CSS, JavaScript (sin frameworks) |
-| Estilos | Bootstrap 5 |
+| Frontend | HTML, CSS, JavaScript, Vue 3 (CDN) |
+| Estilos | Bootstrap 5.3 (CDN) |
 | IDE | Apache NetBeans |
 | Pruebas API | Postman |
 
@@ -130,16 +130,21 @@ SistemaNotas-U/
 │           └── notas/         → Application.java (punto de entrada)
 ├── frontend/
 │   ├── index.html             → Login
-│   ├── pages/                 → Vistas por rol
-│   ├── css/                   → Estilos globales y componentes
-│   └── js/                    → Lógica de cada módulo
+│   ├── pages/                 → Vistas por rol (admin/, profesor/, estudiante/)
+│   ├── css/                   → Estilos globales
+│   └── js/                    → api.js, auth.js, utils.js, components.js
 ├── db/
 │   ├── schema.sql             → Definición de tablas
 │   └── seed.sql               → Datos de prueba
 ├── postman/
 │   └── SistemaNotas.postman_collection.json
-├── DOCUMENTACION.md           → Guía técnica para el equipo
-├── TAREAS.md                  → Asignación de tareas por persona
+├── docs/
+│   ├── DOCUMENTACION.md       → Guía técnica backend
+│   ├── DOCUMENTACION_FRONTEND.md → Guía técnica frontend (Vue, Bootstrap, API)
+│   ├── TAREAS.md              → Tareas backend por persona
+│   ├── TAREAS_FRONTEND.md     → Tareas frontend por persona
+│   ├── FRONTEND_GUIA.md       → Patrones y convenciones frontend
+│   └── BACKEND_STATUS.md      → Estado del backend
 └── README.md
 ```
 

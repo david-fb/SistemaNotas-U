@@ -1,6 +1,6 @@
 # Tareas del Equipo — Sistema de Notas
 
-> Para el patrón de código, ejemplos de SQL y explicación de HTTP ver **DOCUMENTACION.md**
+> Para el patrón de código, ejemplos de SQL y explicación de HTTP ver **DOCUMENTACION.md** (en esta carpeta docs/)
 
 ---
 
