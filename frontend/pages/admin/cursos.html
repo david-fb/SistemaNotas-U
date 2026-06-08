@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursos - Sistema de Notas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/global.css">
+</head>
+<body class="bg-light">
+    <div id="app">
+        <nav-bar active="cursos"></nav-bar>
+
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-bold mb-0">Cursos</h3>
+                <button class="btn btn-primary" @click="openCreate">+ Nuevo Curso</button>
+            </div>
+
+            <!-- Tabla -->
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Codigo</th>
+                                <th>Nombre</th>
+                                <th>Profesor</th>
+                                <th>Semestre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="c in cursos" :key="c.id">
+                                <td>{{ c.id }}</td>
+                                <td><code>{{ c.codigo }}</code></td>
+                                <td>{{ c.nombre }}</td>
+                                <td>{{ getProfesorName(c.profesorId) }}</td>
+                                <td>{{ getSemestreName(c.semestreId) }}</td>
+                            </tr>
+                            <tr v-if="cursos.length === 0">
+                                <td colspan="5" class="text-center text-muted py-4">No hay cursos registrados</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Crear -->
+        <div class="modal fade" id="modalCurso" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nuevo Curso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form @submit.prevent="save">
+                        <div class="modal-body">
+                            <div v-if="formError" class="alert alert-danger py-2">{{ formError }}</div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Curso</label>
+                                <input type="text" class="form-control" v-model="form.nombre" placeholder="Ej: Ingenieria de Software" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Codigo</label>
+                                <input type="text" class="form-control" v-model="form.codigo" placeholder="Ej: IS-501" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Profesor</label>
+                                <select class="form-select" v-model="form.profesorId" required>
+                                    <option value="">Seleccionar profesor</option>
+                                    <option v-for="p in profesores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Semestre</label>
+                                <select class="form-select" v-model="form.semestreId" required>
+                                    <option value="">Seleccionar semestre</option>
+                                    <option v-for="s in semestres" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" :disabled="saving">
+                                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                                Crear Curso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/components.js"></script>
+    <script>
+        Auth.requireRol('admin');
+
+        Vue.createApp({
+            data() {
+                return {
+                    cursos: [],
+                    profesores: [],
+                    semestres: [],
+                    form: { nombre: '', codigo: '', profesorId: '', semestreId: '' },
+                    formError: '',
+                    saving: false
+                }
+            },
+            mounted() { this.loadData(); },
+            methods: {
+                async loadData() {
+                    try {
+                        const [cursos, usuarios, semestres] = await Promise.all([
+                            Api.get('/cursos'),
+                            Api.get('/usuarios'),
+                            Api.get('/semestres')
+                        ]);
+                        this.cursos = cursos;
+                        this.profesores = usuarios.filter(u => u.rol === 'profesor' && u.activo);
+                        this.semestres = semestres;
+                    } catch (e) {
+                        Utils.toast('Error al cargar datos', 'danger');
+                    }
+                },
+
+                openCreate() {
+                    this.form = { nombre: '', codigo: '', profesorId: '', semestreId: '' };
+                    this.formError = '';
+                    new bootstrap.Modal(document.getElementById('modalCurso')).show();
+                },
+
+                async save() {
+                    this.formError = '';
+                    this.saving = true;
+                    try {
+                        await Api.post('/cursos', {
+                            nombre: this.form.nombre,
+                            codigo: this.form.codigo,
+                            profesorId: Number(this.form.profesorId),
+                            semestreId: Number(this.form.semestreId)
+                        });
+                        Utils.toast('Curso creado');
+                        bootstrap.Modal.getInstance(document.getElementById('modalCurso')).hide();
+                        await this.loadData();
+                    } catch (e) {
+                        this.formError = e.message;
+                    } finally {
+                        this.saving = false;
+                    }
+                },
+
+                getProfesorName(id) {
+                    const p = this.profesores.find(x => x.id === id);
+                    return p ? p.nombre : 'ID: ' + id;
+                },
+
+                getSemestreName(id) {
+                    const s = this.semestres.find(x => x.id === id);
+                    return s ? s.nombre : 'ID: ' + id;
+                }
+            }
+        }).component('nav-bar', NavBar).mount('#app');
+    </script>
+</body>
+</html>

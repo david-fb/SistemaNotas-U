@@ -66,11 +66,11 @@ const Auth = {
     },
 
     // Guard: redirige si el usuario no tiene el rol requerido
-    // Ejemplo: Auth.requireRol('admin')
-    requireRol: function(rol) {
+    // Acepta un rol o varios: Auth.requireRol('admin') o Auth.requireRol('profesor', 'admin')
+    requireRol: function(...roles) {
         if (!this.requireAuth()) return false;
 
-        if (this.getRol() !== rol) {
+        if (!roles.includes(this.getRol())) {
             window.location.href = '/pages/dashboard.html';
             return false;
         }
