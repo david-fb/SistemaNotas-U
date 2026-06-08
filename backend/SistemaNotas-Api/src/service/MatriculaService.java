@@ -21,16 +21,15 @@ public class MatriculaService {
         if (cursoId <= 0) {
             throw new IllegalArgumentException("Debe seleccionar un curso válido para la matrícula");
         }
-        
+
         if (estudianteId <= 0) {
             throw new IllegalArgumentException("Debe seleccionar un estudiante válido para la matrícula");
         }
-        
-        if (fecha == null || fecha.isBlank()) {
-            throw new IllegalArgumentException("La fecha de matrícula es obligatoria");
-        }
 
-        Matricula nuevaMatricula = new Matricula(0, cursoId, estudianteId, fecha, true);
+        // Genera la fecha automáticamente si no se proporciona
+        String fechaMatricula = (fecha != null && !fecha.isBlank()) ? fecha : java.time.LocalDate.now().toString();
+
+        Matricula nuevaMatricula = new Matricula(0, cursoId, estudianteId, fechaMatricula, true);
 
         return matriculaRepository.save(nuevaMatricula);
     }

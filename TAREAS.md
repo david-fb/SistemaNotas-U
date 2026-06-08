@@ -17,7 +17,7 @@ Todo lo siguiente ya está hecho y funciona:
 
 ---
 
-## Edwin — Semestres (EP-08)
+## Edwin — Semestres (EP-08) ✅ COMPLETADO
 
 > Módulo completamente independiente. Puedes empezar el día 1 sin esperar a nadie.
 
@@ -222,8 +222,9 @@ server.createContext("/api/mis-notas", new AuthMiddleware(new MisNotasController
 
 ## Resumen
 
-| Persona | Archivos a crear | Depende de |
-|---------|-----------------|------------|
-| Edwin | `SemestreRepository`, `SemestreController` | Nadie ✅ |
-| Jimmi | `CursoRepository`, `CursoService`, `CursoController`, `MatriculaRepository`, `MatriculaController` | Nadie ✅ |
-| Alejandro | `CorteRepository`, `CorteService`, `CorteController`, `NotaRepository`, `NotaService`, `NotaController`, `MisNotasController` | Nadie ✅ |
+| Persona | Archivos a crear | Depende de | Estado |
+|---------|-----------------|------------|--------|
+| David | Base del proyecto | - | ✅ COMPLETADO |
+| Edwin | `SemestreRepository`, `SemestreService`, `SemestreController` | Nadie | ✅ COMPLETADO |
+| Jimmi | `CursoRepository`, `CursoService`, `CursoController`, `MatriculaRepository`, `MatriculaService`, `MatriculaController` | Nadie | ✅ COMPLETADO |
+| Alejandro | `CorteRepository`, `CorteService`, `CorteController`, `NotaRepository`, `NotaService`, `NotaController`, `MisNotasController` | Nadie | ✅ COMPLETADO |

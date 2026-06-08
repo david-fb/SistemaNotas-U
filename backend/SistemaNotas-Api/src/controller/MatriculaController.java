@@ -49,17 +49,17 @@ public class MatriculaController implements HttpHandler {
             } 
             // 2. POST /api/matriculas -> matricula un estudiante (solo admin)
             else if (path.equals("/api/matriculas") && method.equals("POST")) {
-                // Validación de Rol: Solo ADMIN
-                if (!"ADMIN".equalsIgnoreCase(solicitante.getRol())) { 
+                // Validación de Rol: Solo admin
+                if (!solicitante.getRol().equals("admin")) {
                     HttpHelper.sendError(exchange, 403, "Prohibido. Solo los administradores pueden matricular.");
                     return;
                 }
                 handleCreate(exchange);
-            } 
+            }
             // 3. DELETE /api/matriculas?cursoId=1&estudianteId=4 -> desmatricula (solo admin)
             else if (path.equals("/api/matriculas") && method.equals("DELETE")) {
-                
-                if (!"ADMIN".equalsIgnoreCase(solicitante.getRol())) { 
+
+                if (!solicitante.getRol().equals("admin")) {
                     HttpHelper.sendError(exchange, 403, "Prohibido. Solo los administradores pueden desmatricular.");
                     return;
                 }

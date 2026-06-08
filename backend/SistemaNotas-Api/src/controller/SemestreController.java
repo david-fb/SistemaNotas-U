@@ -64,11 +64,18 @@ public class SemestreController implements HttpHandler {
 
     // GET /api/semestres → devuelve la lista de semestres
     private void handleGetAll(HttpExchange exchange) throws IOException {
-        List<Semestre> semestres = semestreService.getAll();
-        List<Map<String, Object>> lista = semestres.stream()
-                .map(Semestre::toMap)
-                .collect(Collectors.toList());
-        HttpHelper.sendJsonArray(exchange, 200, JsonUtil.toJsonArray(lista));
+        try {
+            List<Semestre> semestres = semestreService.getAll();
+            List<Map<String, Object>> lista = semestres.stream()
+                    .map(Semestre::toMap)
+                    .collect(Collectors.toList());
+            HttpHelper.sendJsonArray(exchange, 200, JsonUtil.toJsonArray(lista));
+        } catch (Exception e) {
+            e.printStackTrace();
+            HttpHelper.sendError(exchange, 500, "Error interno del servidor al listar semestres");
+        } finally {
+            exchange.close();
+        }
     }
 
     // POST /api/semestres → crea un nuevo semestre
