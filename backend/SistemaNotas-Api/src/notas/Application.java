@@ -9,6 +9,7 @@ import controller.NotaController;
 import controller.UsuarioController;
 import controller.CursoController;
 import controller.MatriculaController;
+import controller.SemestreController;
 import middleware.AuthMiddleware;
 
 import java.io.IOException;
@@ -30,9 +31,8 @@ public class Application {
         // Rutas protegidas (requieren token valido)
         // Cada ruta pasa por el AuthMiddleware antes de llegar al controller
         // ============================================================
-        // Descomenta cada ruta cuando termines su controller
         server.createContext("/api/usuarios", new AuthMiddleware(new UsuarioController()));
-        // server.createContext("/api/semestres",  new AuthMiddleware(new SemestreController()));
+        server.createContext("/api/semestres",  new AuthMiddleware(new SemestreController()));
         server.createContext("/api/cursos",     new AuthMiddleware(new CursoController()));
         server.createContext("/api/mis-cursos", new AuthMiddleware(new CursoController()));
         server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaController()));
