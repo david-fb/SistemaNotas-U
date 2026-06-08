@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Sistema de Notas API",
-    "description": "Colección de requests para el Sistema de Gestión de Notas Estudiantiles",
+    "description": "Colección completa de requests para el Sistema de Gestión de Notas Estudiantiles. Todos los endpoints requieren autenticación via token Bearer.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -19,6 +19,7 @@
   "item": [
     {
       "name": "Auth",
+      "description": "Autenticación y sesión",
       "item": [
         {
           "name": "Login",
@@ -49,7 +50,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "login"]
             },
-            "description": "Inicia sesión y guarda el token automáticamente en la variable {{token}}"
+            "description": "Inicia sesión con correo y contraseña. El token se guarda automáticamente en {{token}}"
           }
         },
         {
@@ -83,6 +84,7 @@
     },
     {
       "name": "Usuarios",
+      "description": "Gestión de usuarios (solo admin)",
       "item": [
         {
           "name": "Listar usuarios",
@@ -94,7 +96,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "usuarios"]
             },
-            "description": "Lista todos los usuarios. Solo admin."
+            "description": "Lista todos los usuarios. Requiere rol admin."
           }
         },
         {
@@ -107,7 +109,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "usuarios", "1"]
             },
-            "description": "Obtiene un usuario por su ID. Cambia el 1 por el ID que necesites."
+            "description": "Obtiene un usuario por su ID. Cambia el ID en la URL."
           }
         },
         {
@@ -127,7 +129,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "usuarios"]
             },
-            "description": "Crea un nuevo usuario. Roles válidos: admin, profesor, estudiante."
+            "description": "Crea un nuevo usuario. Roles válidos: admin, profesor, estudiante. Requiere rol admin."
           }
         },
         {
@@ -147,7 +149,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "usuarios", "9"]
             },
-            "description": "Edita nombre, correo y rol de un usuario. Cambia el ID en la URL."
+            "description": "Edita nombre, correo y rol de un usuario. Requiere rol admin."
           }
         },
         {
@@ -160,13 +162,14 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "usuarios", "9"]
             },
-            "description": "Desactiva un usuario (no lo elimina). Cambia el ID en la URL."
+            "description": "Desactiva un usuario (no lo elimina). Requiere rol admin."
           }
         }
       ]
     },
     {
       "name": "Semestres",
+      "description": "Gestión de semestres académicos",
       "item": [
         {
           "name": "Listar semestres",
@@ -177,7 +180,8 @@
               "raw": "{{baseUrl}}/api/semestres",
               "host": ["{{baseUrl}}"],
               "path": ["api", "semestres"]
-            }
+            },
+            "description": "Lista todos los semestres. Todos los roles pueden acceder."
           }
         },
         {
@@ -196,16 +200,18 @@
               "raw": "{{baseUrl}}/api/semestres",
               "host": ["{{baseUrl}}"],
               "path": ["api", "semestres"]
-            }
+            },
+            "description": "Crea un nuevo semestre. Requiere rol admin. Formato de fecha: YYYY-MM-DD"
           }
         }
       ]
     },
     {
       "name": "Cursos",
+      "description": "Gestión de cursos y cursos del profesor",
       "item": [
         {
-          "name": "Listar cursos",
+          "name": "Listar todos los cursos",
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
@@ -213,7 +219,34 @@
               "raw": "{{baseUrl}}/api/cursos",
               "host": ["{{baseUrl}}"],
               "path": ["api", "cursos"]
-            }
+            },
+            "description": "Lista todos los cursos. Requiere rol admin."
+          }
+        },
+        {
+          "name": "Obtener curso por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cursos", "1"]
+            },
+            "description": "Obtiene un curso por su ID. Todos los roles pueden acceder."
+          }
+        },
+        {
+          "name": "Mis cursos (profesor)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/mis-cursos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mis-cursos"]
+            },
+            "description": "Lista los cursos asignados al profesor autenticado. Requiere rol profesor."
           }
         },
         {
@@ -232,14 +265,30 @@
               "raw": "{{baseUrl}}/api/cursos",
               "host": ["{{baseUrl}}"],
               "path": ["api", "cursos"]
-            }
+            },
+            "description": "Crea un nuevo curso. Requiere rol admin. El código debe ser único."
           }
         }
       ]
     },
     {
       "name": "Matrículas",
+      "description": "Gestión de matrículas de estudiantes en cursos",
       "item": [
+        {
+          "name": "Listar matrículas de un curso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/matriculas?cursoId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "matriculas"],
+              "query": [{ "key": "cursoId", "value": "1" }]
+            },
+            "description": "Lista todos los estudiantes matriculados en un curso."
+          }
+        },
         {
           "name": "Matricular estudiante",
           "request": {
@@ -256,13 +305,32 @@
               "raw": "{{baseUrl}}/api/matriculas",
               "host": ["{{baseUrl}}"],
               "path": ["api", "matriculas"]
-            }
+            },
+            "description": "Matricula un estudiante en un curso. Requiere rol admin. La fecha se genera automáticamente si no se envía."
+          }
+        },
+        {
+          "name": "Desmatricular estudiante",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/matriculas?cursoId=1&estudianteId=4",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "matriculas"],
+              "query": [
+                { "key": "cursoId", "value": "1" },
+                { "key": "estudianteId", "value": "4" }
+              ]
+            },
+            "description": "Desmatricula un estudiante de un curso. Requiere rol admin."
           }
         }
       ]
     },
     {
       "name": "Cortes",
+      "description": "Gestión de cortes/actividades evaluativas",
       "item": [
         {
           "name": "Listar cortes de un curso",
@@ -270,11 +338,11 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/api/cortes?cursoId=1",
+              "raw": "{{baseUrl}}/api/cortes/curso/1",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "cortes"],
-              "query": [{ "key": "cursoId", "value": "1" }]
-            }
+              "path": ["api", "cortes", "curso", "1"]
+            },
+            "description": "Lista todos los cortes de un curso (ordenados por id ASC). Cambiar el ID al final de la URL. Todos los roles pueden acceder."
           }
         },
         {
@@ -293,14 +361,42 @@
               "raw": "{{baseUrl}}/api/cortes",
               "host": ["{{baseUrl}}"],
               "path": ["api", "cortes"]
-            }
+            },
+            "description": "Crea un nuevo corte. Requiere rol profesor o admin. La suma de porcentajes no puede exceder 100%."
+          }
+        },
+        {
+          "name": "Eliminar corte",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/cortes/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cortes", "1"]
+            },
+            "description": "Elimina un corte. Requiere rol profesor o admin."
           }
         }
       ]
     },
     {
       "name": "Notas",
+      "description": "Gestión de calificaciones y vista de notas",
       "item": [
+        {
+          "name": "Listar notas de un curso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/notas/curso/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notas", "curso", "1"]
+            },
+            "description": "Lista todas las notas de un curso. Cambiar el ID al final de la URL. Requiere rol profesor."
+          }
+        },
         {
           "name": "Registrar nota",
           "request": {
@@ -317,7 +413,41 @@
               "raw": "{{baseUrl}}/api/notas",
               "host": ["{{baseUrl}}"],
               "path": ["api", "notas"]
-            }
+            },
+            "description": "Registra una nota para un estudiante en un corte. Requiere rol profesor. Valor entre 0.0 y 5.0."
+          }
+        },
+        {
+          "name": "Actualizar nota",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valor\": 3.8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notas", "1"]
+            },
+            "description": "Actualiza el valor de una nota. Requiere rol profesor."
+          }
+        },
+        {
+          "name": "Eliminar nota",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/notas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notas", "1"]
+            },
+            "description": "Elimina una nota. Requiere rol profesor."
           }
         },
         {
@@ -330,7 +460,20 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "mis-notas"]
             },
-            "description": "Retorna las notas del estudiante autenticado"
+            "description": "Retorna todas las notas del estudiante autenticado, agrupadas por curso. Requiere rol estudiante."
+          }
+        },
+        {
+          "name": "Mi promedio general",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/mis-notas/promedio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mis-notas", "promedio"]
+            },
+            "description": "Retorna el promedio general del estudiante autenticado. Requiere rol estudiante."
           }
         }
       ]

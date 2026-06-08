@@ -143,7 +143,7 @@ server.createContext("/api/matriculas", new AuthMiddleware(new MatriculaControll
   - porcentaje entre 1 y 100
   - la suma total de cortes del curso no supere 100%
 - `CorteController.java` — endpoints:
-  - `GET /api/cortes?cursoId=1` → lista cortes de un curso, **ordenados por id ASC**
+  - `GET /api/cortes/curso/{id}` → lista cortes de un curso, **ordenados por id ASC**
   - `POST /api/cortes` → crea corte (solo profesor o admin)
     ```json
     { "cursoId": 1, "porcentaje": 30 }
@@ -169,7 +169,7 @@ server.createContext("/api/cortes", new AuthMiddleware(new CorteController()));
   - valor entre 0.0 y 5.0
   - el estudiante debe estar matriculado en el curso del corte
 - `NotaController.java` — endpoints:
-  - `GET /api/notas?cursoId=1` → notas de todos los estudiantes del curso (vista profesor)
+  - `GET /api/notas/curso/{id}` → notas de todos los estudiantes del curso (vista profesor)
   - `POST /api/notas` → registra nota (solo profesor)
     ```json
     { "estudianteId": 4, "corteId": 1, "valor": 4.5 }
