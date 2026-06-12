@@ -10,16 +10,25 @@ public class Matricula {
     private int estudianteId;
     private String fecha;
     private boolean estado;
+    private String nombreEstudiante;
+    private String correoEstudiante;
 
     public Matricula() {
     }
 
     public Matricula(int id, int cursoId, int estudianteId, String fecha, boolean estado) {
+        this(id, cursoId, estudianteId, fecha, estado, null, null);
+    }
+
+    public Matricula(int id, int cursoId, int estudianteId, String fecha, boolean estado,
+            String nombreEstudiante, String correoEstudiante) {
         this.id = id;
         this.cursoId = cursoId;
         this.estudianteId = estudianteId;
         this.fecha = fecha;
         this.estado = estado;
+        this.nombreEstudiante = nombreEstudiante;
+        this.correoEstudiante = correoEstudiante;
     }
 
     public Map<String, Object> toMap() {
@@ -29,6 +38,8 @@ public class Matricula {
         map.put("estudianteId", estudianteId);
         map.put("fecha", fecha);
         map.put("estado", estado);
+        map.put("nombre", nombreEstudiante);
+        map.put("correo", correoEstudiante);
         return map;
     }
 
@@ -70,5 +81,21 @@ public class Matricula {
 
     public void setEstado(boolean estado) {
         this.estado = estado;
+    }
+
+    public String getNombreEstudiante() {
+        return nombreEstudiante;
+    }
+
+    public void setNombreEstudiante(String nombreEstudiante) {
+        this.nombreEstudiante = nombreEstudiante;
+    }
+
+    public String getCorreoEstudiante() {
+        return correoEstudiante;
+    }
+
+    public void setCorreoEstudiante(String correoEstudiante) {
+        this.correoEstudiante = correoEstudiante;
     }
 }
