@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas - Sistema de Notas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/global.css">
+</head>
+<body class="bg-light">
+    <div id="app">
+        <nav-bar active="notas"></nav-bar>
+
+        <div class="container">
+            <h3 class="fw-bold mb-3">Notas</h3>
+
+            <!-- Selector de curso -->
+            <div class="row mb-4">
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold">Seleccionar Curso</label>
+                    <select class="form-select" v-model="selectedCurso" @change="loadDatos">
+                        <option value="">-- Elige un curso --</option>
+                        <option v-for="c in cursos" :key="c.id" :value="c.id">{{ c.codigo }} - {{ c.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Contenido cuando hay curso seleccionado -->
+            <div v-if="selectedCurso">
+                <div v-if="loading" class="text-center text-muted py-5">
+                    <span class="spinner-border spinner-border-sm me-2"></span> Cargando...
+                </div>
+
+                <div v-else>
+                    <div v-if="cortes.length === 0" class="alert alert-warning">
+                        Este curso aun no tiene cortes definidos. Pidele al profesor encargado de actividades que cree los cortes primero.
+                    </div>
+
+                    <div v-else class="card shadow-sm">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Estudiante</th>
+                                        <th v-for="(corte, index) in cortes" :key="corte.id" class="text-center">
+                                            Corte {{ index + 1 }} ({{ corte.porcentaje }}%)
+                                        </th>
+                                        <th class="text-center">Definitiva</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="m in matriculas" :key="m.estudianteId">
+                                        <td>
+                                            <div class="fw-semibold">{{ getEstudianteName(m.estudianteId) }}</div>
+                                            <div class="text-muted small">ID: {{ m.estudianteId }}</div>
+                                        </td>
+                                        <td v-for="corte in cortes" :key="corte.id" class="text-center">
+                                            <div v-if="getNota(m.estudianteId, corte.id)" class="d-flex align-items-center justify-content-center gap-1">
+                                                <span>{{ getNota(m.estudianteId, corte.id).valor.toFixed(1) }}</span>
+                                                <button class="btn btn-sm btn-outline-primary py-0 px-1" @click="openEdit(m, corte)">Editar</button>
+                                                <button class="btn btn-sm btn-outline-danger py-0 px-1" @click="removeNota(m, corte)">x</button>
+                                            </div>
+                                            <button v-else class="btn btn-sm btn-outline-secondary py-0 px-2" @click="openCreate(m, corte)">Registrar</button>
+                                        </td>
+                                        <td class="text-center fw-semibold">{{ getDefinitiva(m.estudianteId) }}</td>
+                                        <td class="text-center">
+                                            <span class="badge" :class="Number(getDefinitiva(m.estudianteId)) >= 3.0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                                                {{ Number(getDefinitiva(m.estudianteId)) >= 3.0 ? 'Aprobado' : 'Reprobado' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="matriculas.length === 0">
+                                        <td :colspan="cortes.length + 3" class="text-center text-muted py-4">No hay estudiantes matriculados en este curso</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="text-center text-muted py-5">
+                <p>Selecciona un curso para ver y registrar las notas</p>
+            </div>
+        </div>
+
+        <!-- Modal Registrar/Editar Nota -->
+        <div class="modal fade" id="modalNota" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ editing ? 'Editar Nota' : 'Registrar Nota' }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form @submit.prevent="save">
+                        <div class="modal-body">
+                            <div v-if="formError" class="alert alert-danger py-2">{{ formError }}</div>
+                            <p class="mb-1"><strong>Estudiante:</strong> {{ formContext.estudianteNombre }}</p>
+                            <p class="mb-3"><strong>Corte:</strong> {{ formContext.corteNombre }} ({{ formContext.cortePorcentaje }}%)</p>
+                            <div class="mb-3">
+                                <label class="form-label">Valor (0.0 - 5.0)</label>
+                                <input type="number" step="0.1" min="0" max="5" class="form-control" v-model.number="form.valor" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" :disabled="saving">
+                                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                                {{ editing ? 'Guardar Cambios' : 'Registrar Nota' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+    <script src="../../js/components.js"></script>
+    <script>
+        Auth.requireRol('profesor');
+
+        Vue.createApp({
+            data() {
+                return {
+                    cursos: [],
+                    cortes: [],
+                    notas: [],
+                    matriculas: [],
+                    estudiantesInfo: {}, // { [id]: {nombre, correo} }
+                    selectedCurso: '',
+                    loading: false,
+
+                    // Modal
+                    editing: false,
+                    editingNotaId: null,
+                    form: { estudianteId: null, corteId: null, valor: 0 },
+                    formContext: { estudianteNombre: '', corteNombre: '', cortePorcentaje: 0 },
+                    formError: '',
+                    saving: false
+                }
+            },
+            mounted() {
+                this.loadCursos();
+            },
+            methods: {
+                async loadCursos() {
+                    try {
+                        this.cursos = await Api.get('/mis-cursos');
+                    } catch (e) {
+                        Utils.toast('Error al cargar cursos', 'danger');
+                    }
+                },
+
+                async loadDatos() {
+                    if (!this.selectedCurso) {
+                        this.cortes = [];
+                        this.notas = [];
+                        this.matriculas = [];
+                        return;
+                    }
+                    this.loading = true;
+                    try {
+                        const [cortes, notas, matriculas] = await Promise.all([
+                            Api.get('/cortes/curso/' + this.selectedCurso),
+                            Api.get('/notas/curso/' + this.selectedCurso),
+                            Api.get('/matriculas?cursoId=' + this.selectedCurso)
+                        ]);
+                        this.cortes = cortes;
+                        this.notas = notas;
+                        this.matriculas = matriculas;
+
+                        // Cargar nombre/correo de cada estudiante (GET /usuarios/{id} es accesible para cualquier rol)
+                        const infos = await Promise.all(
+                            matriculas.map(m => Api.get('/usuarios/' + m.estudianteId).catch(() => null))
+                        );
+                        const map = {};
+                        infos.forEach((info, i) => {
+                            if (info) map[matriculas[i].estudianteId] = info;
+                        });
+                        this.estudiantesInfo = map;
+                    } catch (e) {
+                        Utils.toast('Error al cargar datos del curso', 'danger');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                getNota(estudianteId, corteId) {
+                    return this.notas.find(n => n.estudianteId === estudianteId && n.corteId === corteId);
+                },
+
+                getDefinitiva(estudianteId) {
+                    let total = 0;
+                    for (const corte of this.cortes) {
+                        const nota = this.getNota(estudianteId, corte.id);
+                        if (nota) total += nota.valor * corte.porcentaje / 100;
+                    }
+                    return total.toFixed(1);
+                },
+
+                getEstudianteName(id) {
+                    const info = this.estudiantesInfo[id];
+                    return info ? info.nombre : 'Estudiante #' + id;
+                },
+
+                getCorteIndex(corteId) {
+                    return this.cortes.findIndex(c => c.id === corteId);
+                },
+
+                openCreate(matricula, corte) {
+                    this.editing = false;
+                    this.editingNotaId = null;
+                    this.form = { estudianteId: matricula.estudianteId, corteId: corte.id, valor: 0 };
+                    this.formContext = {
+                        estudianteNombre: this.getEstudianteName(matricula.estudianteId),
+                        corteNombre: 'Corte ' + (this.getCorteIndex(corte.id) + 1),
+                        cortePorcentaje: corte.porcentaje
+                    };
+                    this.formError = '';
+                    new bootstrap.Modal(document.getElementById('modalNota')).show();
+                },
+
+                openEdit(matricula, corte) {
+                    const nota = this.getNota(matricula.estudianteId, corte.id);
+                    this.editing = true;
+                    this.editingNotaId = nota.id;
+                    this.form = { estudianteId: matricula.estudianteId, corteId: corte.id, valor: nota.valor };
+                    this.formContext = {
+                        estudianteNombre: this.getEstudianteName(matricula.estudianteId),
+                        corteNombre: 'Corte ' + (this.getCorteIndex(corte.id) + 1),
+                        cortePorcentaje: corte.porcentaje
+                    };
+                    this.formError = '';
+                    new bootstrap.Modal(document.getElementById('modalNota')).show();
+                },
+
+                async save() {
+                    this.formError = '';
+                    this.saving = true;
+                    try {
+                        if (this.editing) {
+                            await Api.put('/notas/' + this.editingNotaId, { valor: this.form.valor });
+                            Utils.toast('Nota actualizada');
+                        } else {
+                            await Api.post('/notas', {
+                                estudianteId: this.form.estudianteId,
+                                corteId: this.form.corteId,
+                                valor: this.form.valor
+                            });
+                            Utils.toast('Nota registrada');
+                        }
+                        bootstrap.Modal.getInstance(document.getElementById('modalNota')).hide();
+                        await this.loadDatos();
+                    } catch (e) {
+                        this.formError = e.message;
+                    } finally {
+                        this.saving = false;
+                    }
+                },
+
+                async removeNota(matricula, corte) {
+                    const nota = this.getNota(matricula.estudianteId, corte.id);
+                    if (!nota) return;
+                    if (!await Utils.confirm(`¿Eliminar la nota de ${this.getEstudianteName(matricula.estudianteId)} en Corte ${this.getCorteIndex(corte.id) + 1}?`)) return;
+                    try {
+                        await Api.delete('/notas/' + nota.id);
+                        Utils.toast('Nota eliminada');
+                        await this.loadDatos();
+                    } catch (e) {
+                        Utils.toast(e.message, 'danger');
+                    }
+                }
+            }
+        }).component('nav-bar', NavBar).mount('#app');
+    </script>
+</body>
+</html>
