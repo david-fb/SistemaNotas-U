@@ -5,87 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema de Notas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 <body class="bg-light">
     <div id="app">
-        <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm mb-4">
-            <div class="container">
-                <span class="navbar-brand fw-bold text-primary">Sistema de Notas</span>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-muted small">{{ usuario.nombre }}</span>
-                    <span class="badge" :class="badgeClass">{{ usuario.rol }}</span>
-                    <button class="btn btn-outline-secondary btn-sm" @click="logout">Cerrar Sesion</button>
-                </div>
-            </div>
-        </nav>
+        <nav-bar></nav-bar>
 
         <div class="container">
-            <div class="mb-4">
-                <h2 class="fw-bold">Hola, {{ usuario.nombre }}</h2>
-                <p class="text-muted">Selecciona una opcion para comenzar</p>
+            <div class="greeting-banner shadow-sm">
+                <h4 class="fw-bold mb-0">Hola, {{ usuario.nombre }}</h4>
+                <p class="text-muted mb-0 mt-1">Selecciona un módulo para comenzar</p>
             </div>
 
             <div class="row g-3">
                 <div v-for="item in menuItems" :key="item.href" class="col-md-6 col-lg-4">
-                    <a :href="item.href" class="card h-100 text-decoration-none border shadow-sm card-hover">
-                        <div class="card-body">
-                            <h5 class="card-title text-primary">{{ item.title }}</h5>
-                            <p class="card-text text-muted small mb-0">{{ item.desc }}</p>
+                    <a :href="item.href" class="card-modulo card h-100 shadow-sm" :class="item.hoverClass">
+                        <div class="card-body p-4">
+                            <i :class="item.icon + ' bg-icon'"></i>
+                            <h6 class="fw-bold mb-1 text-dark">{{ item.title }}</h6>
+                            <p class="small mb-0 text-muted">{{ item.desc }}</p>
                         </div>
                     </a>
                 </div>
             </div>
         </div>
+        <footer-bar></footer-bar>
     </div>
-
-    <style>
-        .card-hover:hover { border-color: var(--bs-primary) !important; transform: translateY(-2px); transition: all 0.2s; }
-        .bg-purple-subtle { background-color: #ede9fe; }
-        .text-purple { color: #6d28d9; }
-    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
+    <script src="../js/components.js"></script>
     <script>
         if (!Auth.requireAuth()) { /* redirige al login */ }
 
+        const m = (title, desc, href, icon, hoverClass) =>
+            ({ title, desc, href, icon, hoverClass });
+
         const menus = {
             admin: [
-                { title: 'Gestion de Usuarios', desc: 'Crear, editar y desactivar cuentas de usuario', href: 'admin/usuarios.html' },
-                { title: 'Semestres', desc: 'Crear y administrar periodos academicos', href: 'admin/semestres.html' },
-                { title: 'Cursos', desc: 'Crear cursos y asignar profesores', href: 'admin/cursos.html' },
-                { title: 'Matriculas', desc: 'Matricular y desmatricular estudiantes', href: 'admin/matriculas.html' }
+                m('Gestión de Usuarios', 'Crear, editar y desactivar cuentas de usuario', 'admin/usuarios.html', 'bi bi-people-fill', 'hover-primary'),
+                m('Semestres', 'Crear y administrar periodos académicos', 'admin/semestres.html', 'bi bi-calendar3', 'hover-warning'),
+                m('Cursos', 'Crear cursos y asignar profesores', 'admin/cursos.html', 'bi bi-book-fill', 'hover-success'),
+                m('Matrículas', 'Matricular y desmatricular estudiantes', 'admin/matriculas.html', 'bi bi-person-check-fill', 'hover-info'),
             ],
             profesor: [
-                { title: 'Mis Cursos', desc: 'Gestionar cursos y estudiantes matriculados', href: 'profesor/cursos.html' },
-                { title: 'Actividades Evaluativas', desc: 'Crear cortes con sus porcentajes', href: 'profesor/actividades.html' },
-                { title: 'Registro de Notas', desc: 'Registrar y editar calificaciones', href: 'profesor/notas.html' }
+                m('Mis Cursos', 'Gestionar cursos y estudiantes matriculados', 'profesor/cursos.html', 'bi bi-book-fill', 'hover-primary'),
+                m('Actividades Evaluativas', 'Crear cortes con sus porcentajes', 'profesor/actividades.html', 'bi bi-list-check', 'hover-warning'),
+                m('Registro de Notas', 'Registrar y editar calificaciones', 'profesor/notas.html', 'bi bi-pencil-square', 'hover-success'),
             ],
             estudiante: [
-                { title: 'Mis Notas', desc: 'Consultar notas por materia y nota definitiva', href: 'estudiante/mis-notas.html' }
+                m('Mis Notas', 'Consultar notas por materia y nota definitiva', 'estudiante/mis-notas.html', 'bi bi-bar-chart-fill', 'hover-primary'),
             ]
         };
 
         Vue.createApp({
             data() {
-                return {
-                    usuario: Auth.getUsuario() || { nombre: '', rol: '' }
-                }
+                return { usuario: Auth.getUsuario() || { nombre: '', rol: '' } }
             },
             computed: {
-                menuItems() { return menus[this.usuario.rol] || []; },
-                badgeClass() {
-                    const map = { admin: 'bg-purple-subtle text-purple', profesor: 'bg-primary-subtle text-primary', estudiante: 'bg-success-subtle text-success' };
-                    return map[this.usuario.rol] || '';
-                }
-            },
-            methods: {
-                logout() { Auth.logout(); }
+                menuItems() { return menus[this.usuario.rol] || []; }
             }
-        }).mount('#app');
+        }).component('nav-bar', NavBar).component('footer-bar', FooterBar).mount('#app');
     </script>
 </body>
 </html>

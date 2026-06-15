@@ -5,33 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Notas - Iniciar Sesion</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/login.css">
 </head>
-<body class="bg-light">
-    <div id="app" class="min-vh-100 d-flex align-items-center justify-content-center p-3">
-        <div class="card shadow-sm" style="max-width: 400px; width: 100%;">
-            <div class="card-body p-4">
-                <h2 class="fw-bold mb-1">Sistema de Notas</h2>
-                <p class="text-muted mb-4">Inicia sesion para continuar</p>
+<body>
+    <div id="app" class="login-bg">
+        <div class="flex-grow-1 d-flex align-items-center justify-content-center p-3">
+        <div class="login-card card" style="max-width: 420px; width: 100%;">
+            <div class="card-body p-5">
+                <div class="login-icon">
+                    <i class="bi bi-mortarboard-fill text-white fs-3"></i>
+                </div>
+                <h4 class="fw-bold text-center mb-1">Sistema de Notas</h4>
+                <p class="text-muted text-center mb-4" style="font-size: 0.9rem;">Ingresa tus credenciales para continuar</p>
 
-                <div v-if="error" class="alert alert-danger py-2">{{ error }}</div>
+                <div v-if="error" class="alert alert-danger py-2 d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                </div>
 
                 <form @submit.prevent="login">
                     <div class="mb-3">
-                        <label for="correo" class="form-label">Correo electronico</label>
-                        <input type="email" id="correo" class="form-control" v-model="correo" placeholder="correo@ejemplo.com" required>
+                        <label for="correo" class="form-label fw-semibold" style="font-size:0.85rem;">Correo electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" id="correo" class="form-control input-with-icon" v-model="correo" placeholder="correo@ejemplo.com" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" id="password" class="form-control" v-model="password" placeholder="Tu contraseña" required>
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold" style="font-size:0.85rem;">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" id="password" class="form-control input-with-icon" v-model="password" placeholder="Tu contraseña" required>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100" :disabled="loading">
-                        <span v-if="loading" class="spinner-border spinner-border-sm me-1"></span>
-                        {{ loading ? 'Ingresando...' : 'Iniciar Sesion' }}
+                    <button type="submit" class="btn btn-brand btn-login w-100" :disabled="loading">
+                        <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                        <i v-else class="bi bi-box-arrow-in-right me-2"></i>
+                        {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
                     </button>
                 </form>
             </div>
         </div>
+        </div>
+        <footer class="footer-bar">
+            <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="footer-title">Sistema de Notas - Ingeniería de Software II</span>
+                    <a href="https://github.com/david-fb/SistemaNotas-U" target="_blank" class="footer-github" title="Ver en GitHub">
+                        <i class="bi bi-github"></i>
+                    </a>
+                </div>
+                <div class="dropup">
+                    <button class="btn btn-footer dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Integrantes
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text">Alejandro Alisajar</span></li>
+                        <li><span class="dropdown-item-text">Jhon Angulo González</span></li>
+                        <li><span class="dropdown-item-text">David Basto Martínez</span></li>
+                        <li><span class="dropdown-item-text">Jimmi Calvo Hoyos</span></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>

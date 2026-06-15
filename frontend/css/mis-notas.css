@@ -1,0 +1,47 @@
+.promedio-banner {
+    background: var(--color-brand);
+    border-radius: 14px;
+    padding: 1.25rem 1.75rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+.promedio-banner .label { font-size: 0.8rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
+.promedio-banner .valor { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+.promedio-banner .valor.aprobado { color: #4ade80; }
+.promedio-banner .valor.reprobado { color: #f87171; }
+
+.curso-card {
+    border: none;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+.curso-card .curso-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+.curso-codigo { font-size: 0.75rem; color: #6c757d; font-weight: 500; letter-spacing: 0.03em; }
+.curso-nombre { font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0; }
+.definitiva-num { font-size: 1.5rem; font-weight: 800; color: var(--color-brand); line-height: 1; }
+
+.cortes-row {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    flex-wrap: wrap;
+}
+.corte-chip {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    min-width: 80px;
+    flex: 1;
+}
+.corte-chip .corte-label { font-size: 0.7rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.04em; }
+.corte-chip .corte-valor { font-size: 1.15rem; font-weight: 700; margin-top: 2px; }
+.corte-chip .corte-valor.aprobado { color: #16a34a; }
+.corte-chip .corte-valor.reprobado { color: #dc2626; }

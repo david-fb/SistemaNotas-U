@@ -5,17 +5,143 @@
 
 /* ---- Variables custom del proyecto ---- */
 :root {
-    --color-primary: #2563eb;
-    --color-primary-hover: #1d4ed8;
+    --color-brand:        #0f172a;
+    --color-brand-hover:  #1e293b;
+    --color-brand-light:  rgba(15, 23, 42, 0.08);
 }
 
 /* ---- Badges de rol ---- */
 .bg-purple-subtle { background-color: #ede9fe; }
 .text-purple { color: #6d28d9; }
 
+/* ---- Botón brand (acción principal) ---- */
+.btn-brand {
+    background: var(--color-brand);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+.btn-brand:hover {
+    background: var(--color-brand-hover);
+    color: #fff;
+    transform: translateY(-1px);
+    transition: all 0.15s;
+}
+.btn-brand:disabled { opacity: 0.65; transform: none; }
+
+/* ---- Navbar oscuro ---- */
+.navbar-brand-custom { background: var(--color-brand); padding-top: 0.85rem; padding-bottom: 0.85rem; }
+.navbar-brand-custom .navbar-brand { color: #fff !important; }
+
+.nav-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+.nav-username { color: rgba(255,255,255,0.85); font-size: 0.875rem; }
+.nav-badge    { background: rgba(255,255,255,0.15); color: #fff; font-size: 0.7rem; }
+.nav-link-custom {
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.4rem 0.9rem !important;
+    border-radius: 6px;
+    transition: all 0.15s;
+    margin: 0 0.15rem;
+}
+.nav-link-custom:hover { color: #fff !important; background: rgba(255,255,255,0.1); }
+.nav-link-custom.active-link { color: #fff !important; background: rgba(255,255,255,0.15); font-weight: 600; }
+.btn-nav-logout {
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.85);
+    font-size: 0.8rem;
+    background: transparent;
+    border-radius: 6px;
+}
+.btn-nav-logout:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+}
+
+/* ---- Tablas ---- */
+.card:has(.table-responsive) {
+    border-radius: 14px;
+    overflow: hidden;
+    border: none;
+}
+.table > thead {
+    background-color: var(--color-brand);
+    color: #fff;
+}
+.table > thead th {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: none;
+    padding: 0.85rem 1rem;
+    color: rgba(255,255,255,0.9);
+}
+.table > tbody > tr:nth-child(odd) > td  { background-color: #fff; }
+.table > tbody > tr:nth-child(even) > td { background-color: #f8f9fa; }
+.table-hover > tbody > tr:hover > td { background-color: rgba(15,23,42,0.06) !important; }
+.table > tbody > tr > td { padding: 0.75rem 1rem; vertical-align: middle; border-color: #f0f0f0; }
+.table-light { --bs-table-bg: var(--color-brand); }
+
+/* ---- Botones de acción (override Bootstrap) ---- */
+.btn-primary, .btn-primary:focus {
+    background-color: var(--color-brand) !important;
+    border-color: var(--color-brand) !important;
+    color: #fff !important;
+}
+.btn-primary:hover {
+    background-color: var(--color-brand-hover) !important;
+    border-color: var(--color-brand-hover) !important;
+}
+.btn-outline-primary {
+    color: var(--color-brand) !important;
+    border-color: var(--color-brand) !important;
+}
+.btn-outline-primary:hover {
+    background-color: var(--color-brand) !important;
+    border-color: var(--color-brand) !important;
+    color: #fff !important;
+}
+
+/* ---- Footer ---- */
+html, body { height: 100%; }
+body { min-height: 100vh; display: flex; flex-direction: column; }
+#app { flex: 1; display: flex; flex-direction: column; }
+.footer-bar {
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+.footer-title { font-size: 0.82rem; color: #6c757d; }
+.btn-footer {
+    font-size: 0.8rem;
+    color: #6c757d;
+    background: transparent;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+}
+.btn-footer:hover { background: #f8f9fa; color: #1e293b; }
+.footer-github { color: #6c757d; font-size: 1rem; transition: color 0.15s; }
+.footer-github:hover { color: var(--color-brand); }
+.dropdown-item-text { font-size: 0.85rem; color: #495057; }
+
 /* ---- Card hover (dashboard) ---- */
 .card-hover:hover {
-    border-color: var(--bs-primary) !important;
+    border-color: var(--color-brand) !important;
     transform: translateY(-2px);
     transition: all 0.2s;
 }

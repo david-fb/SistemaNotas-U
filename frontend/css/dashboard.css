@@ -1,0 +1,41 @@
+.greeting-banner {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.card-modulo {
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    background-color: #fff;
+}
+.card-modulo:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12) !important;
+    border-color: transparent;
+}
+.card-modulo:hover.hover-primary { background-color: var(--bs-primary-bg-subtle); }
+.card-modulo:hover.hover-warning { background-color: var(--bs-warning-bg-subtle); }
+.card-modulo:hover.hover-success { background-color: var(--bs-success-bg-subtle); }
+.card-modulo:hover.hover-info    { background-color: var(--bs-info-bg-subtle); }
+.card-modulo .bg-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 5rem;
+    opacity: 0.12;
+    color: #adb5bd;
+    transition: opacity 0.25s ease, color 0.25s ease;
+    line-height: 1;
+}
+.card-modulo:hover .bg-icon { opacity: 0.2; }
+.card-modulo.hover-primary:hover .bg-icon { color: var(--bs-primary); }
+.card-modulo.hover-warning:hover .bg-icon  { color: var(--bs-warning); }
+.card-modulo.hover-success:hover .bg-icon  { color: var(--bs-success); }
+.card-modulo.hover-info:hover .bg-icon     { color: var(--bs-info); }
+.card-modulo h6, .card-modulo p { position: relative; z-index: 1; }

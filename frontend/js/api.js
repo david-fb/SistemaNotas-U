@@ -53,8 +53,8 @@ const Api = {
         try {
             const response = await fetch(url, options);
 
-            // Si el servidor responde 401, redirigir al login
-            if (response.status === 401) {
+            // Si el servidor responde 401, redirigir al login (excepto en el login mismo)
+            if (response.status === 401 && endpoint !== '/auth/login') {
                 sessionStorage.clear();
                 window.location.href = '/index.html';
                 return null;
