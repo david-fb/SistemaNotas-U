@@ -24,16 +24,18 @@ public class UsuarioController implements HttpHandler {
             return;
         }
 
-        // Solo administradores pueden gestionar usuarios
-        Usuario solicitante = HttpHelper.getUsuario(exchange);
-        if (!solicitante.getRol().equals("admin")) {
-            HttpHelper.sendError(exchange, 403, "Acceso denegado. Se requiere rol admin.");
-            return;
-        }
-
         String path = exchange.getRequestURI().getPath();
         String method = HttpHelper.getMethod(exchange);
         String idStr = HttpHelper.getPathParam(exchange, 3); // /api/usuarios/{id}
+
+        Usuario solicitante = HttpHelper.getUsuario(exchange);
+        boolean esAdmin = solicitante.getRol().equals("admin");
+        boolean esProfesor = solicitante.getRol().equals("profesor");
+        boolean esGetPorId = path.matches("/api/usuarios/\\d+") && method.equals("GET");
+        if (!esAdmin && !(esProfesor && esGetPorId)) {
+            HttpHelper.sendError(exchange, 403, "Acceso denegado. No tienes permisos para esta acción.");
+            return;
+        }
 
         try {
             if (path.equals("/api/usuarios") && method.equals("GET")) {
