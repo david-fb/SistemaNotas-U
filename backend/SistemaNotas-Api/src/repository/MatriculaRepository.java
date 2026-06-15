@@ -12,20 +12,25 @@ public class MatriculaRepository {
     
     public List<Matricula> findByCurso(int cursoId) {
         List<Matricula> matriculas = new ArrayList<>();
-        String sql = "SELECT id, curso_id, estudiante_id, fecha, estado FROM public.matricula WHERE curso_id = ?";
+        String sql = "SELECT m.id, m.curso_id, m.estudiante_id, m.fecha, m.estado, u.nombre, u.correo " +
+                "FROM public.matricula m " +
+                "JOIN public.usuario u ON u.id = m.estudiante_id " +
+                "WHERE m.curso_id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, cursoId); // 
+            ps.setInt(1, cursoId); //
 
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) { 
+                while (rs.next()) {
                     matriculas.add(new Matricula(
                             rs.getInt("id"),
                             rs.getInt("curso_id"),
                             rs.getInt("estudiante_id"),
                             rs.getString("fecha"),
-                            rs.getBoolean("estado")
+                            rs.getBoolean("estado"),
+                            rs.getString("nombre"),
+                            rs.getString("correo")
                     ));
                 }
             }
