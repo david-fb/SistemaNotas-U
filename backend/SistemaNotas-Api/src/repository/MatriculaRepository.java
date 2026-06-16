@@ -15,7 +15,7 @@ public class MatriculaRepository {
         String sql = "SELECT m.id, m.curso_id, m.estudiante_id, m.fecha, m.estado, u.nombre, u.correo " +
                 "FROM public.matricula m " +
                 "JOIN public.usuario u ON u.id = m.estudiante_id " +
-                "WHERE m.curso_id = ?";
+                "WHERE m.curso_id = ?   ";
 
         try (Connection conn = DatabaseConfig.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -39,7 +39,11 @@ public class MatriculaRepository {
         }
         return matriculas; // Retorna la lista (estará vacía si el curso no tiene materias)
     }
+    
+
     public Matricula save(Matricula matricula) {
+        
+
         String sql = "INSERT INTO public.matricula (curso_id, estudiante_id, fecha, estado) VALUES (?, ?, ?, ?) RETURNING *";
 
         try (Connection conn = DatabaseConfig.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -63,13 +67,18 @@ public class MatriculaRepository {
             return null;
 
         } catch (SQLException e) {
+            if ("23505".equals(e.getSQLState())) {
+            throw new RuntimeException("El estudiante ya se encuentra registrado en este curso.");
+        }
             e.printStackTrace();
             throw new RuntimeException("Error al crear matricula en repositorio", e);
         }
+        
     }
     public boolean delete(int cursoId, int estudianteId) {
         
-        String sql = "UPDATE public.matricula SET estado = false WHERE curso_id = ? AND estudiante_id = ?";
+        String sql = "DELETE FROM public.matricula \n" +
+            "WHERE curso_id = ? AND estudiante_id = ?;";
 
         try (Connection conn = DatabaseConfig.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql)) {

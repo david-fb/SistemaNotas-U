@@ -81,8 +81,12 @@ public class MatriculaController implements HttpHandler {
         } catch (IllegalArgumentException e) {
             HttpHelper.sendError(exchange, 400, e.getMessage()); 
         } catch (Exception e) {
-            e.printStackTrace(); 
-            HttpHelper.sendError(exchange, 500, "Error interno del servidor en matriculas");
+            if (e.getMessage() != null && e.getMessage().contains("ya se encuentra registrado")) {
+                HttpHelper.sendError(exchange, 400, e.getMessage());
+            } else {
+                e.printStackTrace(); 
+                HttpHelper.sendError(exchange, 500, "Error interno del servidor en matriculas");
+            }
         } finally {
             exchange.close(); 
         }
